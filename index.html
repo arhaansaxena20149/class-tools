@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unblocked Games</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f0f1a;
+      --card-bg: #1a1a2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2d2d4e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      gap: 8px;
+      width: 260px;
+    }
+
+    .search-bar input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--muted);
+    }
+
+    /* MAIN LAYOUT */
+    .container {
+      display: flex;
+      height: calc(100vh - 65px);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      padding: 0 8px;
+    }
+
+    .category-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .category-btn:hover,
+    .category-btn.active {
+      background: rgba(124, 58, 237, 0.15);
+      color: var(--text);
+    }
+
+    .category-btn.active {
+      color: #a78bfa;
+    }
+
+    .category-btn .icon {
+      font-size: 1.1rem;
+    }
+
+    /* CONTENT AREA */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    /* GAME GRID */
+    #game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
+    }
+
+    .game-thumb {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, #1e1e3a, #2d2d5e);
+    }
+
+    .game-thumb-placeholder {
+      width: 100%;
+      aspect-ratio: 16/10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #1e1e3a, #2d2d5e);
+    }
+
+    .game-info {
+      padding: 10px 12px;
+    }
+
+    .game-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-tag {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* GAME PLAYER OVERLAY */
+    #player-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #player-overlay.open {
+      display: flex;
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(95vw, 1100px);
+      margin-bottom: 10px;
+    }
+
+    .player-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .close-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    #game-frame {
+      width: min(95vw, 1100px);
+      height: min(80vh, 700px);
+      border: none;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    /* SECTION TITLE */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .section-title span {
+      color: var(--accent2);
+    }
+
+    /* NO RESULTS */
+    .no-results {
+      grid-column: 1/-1;
+      text-align: center;
+      color: var(--muted);
+      padding: 60px 0;
+      font-size: 1rem;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡ UnblockedZone</div>
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="search-input" placeholder="Search games..." />
+  </div>
+</header>
+
+<div class="container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Categories</h3>
+    <button class="category-btn active" data-cat="all">
+      <span class="icon">🎮</span> All Games
+    </button>
+    <button class="category-btn" data-cat="shooter">
+      <span class="icon">🔫</span> Shooters
+    </button>
+    <button class="category-btn" data-cat="sports">
+      <span class="icon">⚽</span> Sports
+    </button>
+    <button class="category-btn" data-cat="racing">
+      <span class="icon">🏎️</span> Racing
+    </button>
+    <button class="category-btn" data-cat="action">
+      <span class="icon">⚔️</span> Action
+    </button>
+    <button class="category-btn" data-cat="casual">
+      <span class="icon">🎲</span> Casual
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <div class="section-title">All Games <span id="game-count"></span></div>
+    <div id="game-grid"></div>
+  </main>
+</div>
+
+<!-- GAME PLAYER OVERLAY -->
+<div id="player-overlay">
+  <div class="player-header">
+    <div class="player-title" id="player-title"></div>
+    <button class="close-btn" id="close-btn">✕</button>
+  </div>
+  <iframe id="game-frame" allowfullscreen></iframe>
+</div>
+
+<script>
+  const games = [
+    {
+      id: 1,
+      title: "Time Shooter 2",
+      category: "shooter",
+      emoji: "🔫",
+      embed: "https://www.miniplay.com/embed/time-shooter-2",
+      desc: "FPS where time moves only when you do"
+    },
+    {
+      id: 2,
+      title: "Time Shooter 3: SWAT",
+      category: "shooter",
+      emoji: "🔫",
+      embed: "https://www.miniplay.com/embed/time-shooter-3-swat",
+      desc: "Slow-motion SWAT tactical shooter"
+    },
+    {
+      id: 3,
+      title: "Time Shooter",
+      category: "shooter",
+      emoji: "🎯",
+      embed: "https://www.miniplay.com/embed/time-shooter",
+      desc: "The original slow-motion FPS"
+    },
+    {
+      id: 4,
+      title: "A Small World Cup",
+      category: "sports",
+      emoji: "⚽",
+      embed: "https://www.miniplay.com/embed/a-small-world-cup",
+      desc: "Ragdoll soccer physics fun"
+    },
+    {
+      id: 5,
+      title: "Slope",
+      category: "casual",
+      emoji: "🟢",
+      embed: "https://www.miniplay.com/embed/slope",
+      desc: "Roll a ball down an endless slope"
+    },
+    {
+      id: 6,
+      title: "Subway Surfers",
+      category: "casual",
+      emoji: "🛹",
+      embed: "https://www.miniplay.com/embed/subway-surfers",
+      desc: "Classic endless runner"
+    },
+    {
+      id: 7,
+      title: "Sports Heads Football",
+      category: "sports",
+      emoji: "⚽",
+      embed: "https://www.miniplay.com/embed/sports-heads-football-championship",
+      desc: "Big head football championship"
+    },
+    {
+      id: 8,
+      title: "Zombie Shooter 3D",
+      category: "shooter",
+      emoji: "🧟",
+      embed: "https://www.miniplay.com/embed/zombie-shooter-3d",
+      desc: "Survive waves of zombies"
+    },
+    {
+      id: 9,
+      title: "Getaway Shootout",
+      category: "action",
+      emoji: "💥",
+      embed: "https://www.miniplay.com/embed/getaway-shootout",
+      desc: "2-player chaotic escape game"
+    },
+    {
+      id: 10,
+      title: "Moto X3M",
+      category: "racing",
+      emoji: "🏍️",
+      embed: "https://www.miniplay.com/embed/moto-x3m",
+      desc: "Extreme motorbike stunt racing"
+    },
+    {
+      id: 11,
+      title: "Penalty Shootout",
+      category: "sports",
+      emoji: "🥅",
+      embed: "https://www.miniplay.com/embed/penalty-shootout",
+      desc: "Take the perfect penalty kick"
+    },
+    {
+      id: 12,
+      title: "Funny Shooter 2",
+      category: "shooter",
+      emoji: "😂",
+      embed: "https://www.miniplay.com/embed/funny-shooter-2",
+      desc: "Wacky first-person shooter"
+    },
+    {
+      id: 13,
+      title: "Drift Hunters",
+      category: "racing",
+      emoji: "🚗",
+      embed: "https://www.miniplay.com/embed/drift-hunters",
+      desc: "Realistic car drifting game"
+    },
+    {
+      id: 14,
+      title: "Bloxd.io",
+      category: "action",
+      emoji: "🧱",
+      embed: "https://www.miniplay.com/embed/bloxd-io",
+      desc: "Multiplayer block building & combat"
+    },
+    {
+      id: 15,
+      title: "Granny",
+      category: "action",
+      emoji: "👵",
+      embed: "https://www.miniplay.com/embed/granny",
+      desc: "Escape from Granny's house"
+    },
+    {
+      id: 16,
+      title: "Melon Sandbox",
+      category: "casual",
+      emoji: "🍉",
+      embed: "https://www.miniplay.com/embed/melon-sandbox",
+      desc: "Physics sandbox playground"
+    },
+    {
+      id: 17,
+      title: "Incredibox Sprunki",
+      category: "casual",
+      emoji: "🎵",
+      embed: "https://www.miniplay.com/embed/incredibox-sprunki",
+      desc: "Create music with characters"
+    },
+    {
+      id: 18,
+      title: "Shootout",
+      category: "shooter",
+      emoji: "🔫",
+      embed: "https://www.miniplay.com/embed/shootout",
+      desc: "Fast-paced shooting action"
+    },
+    {
+      id: 19,
+      title: "Soccer Random",
+      category: "sports",
+      emoji: "⚽",
+      embed: "https://www.miniplay.com/embed/soccer-random",
+      desc: "Chaotic one-button soccer"
+    },
+    {
+      id: 20,
+      title: "Basket Random",
+      category: "sports",
+      emoji: "🏀",
+      embed: "https://www.miniplay.com/embed/basket-random",
+      desc: "Wacky ragdoll basketball"
+    }
+  ];
+
+  let currentCat = "all";
+  let searchQuery = "";
+
+  function filteredGames() {
+    return games.filter(g => {
+      const matchCat = currentCat === "all" || g.category === currentCat;
+      const matchSearch = g.title.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }
+
+  function renderGames() {
+    const grid = document.getElementById("game-grid");
+    const list = filteredGames();
+    document.getElementById("game-count").textContent = `(${list.length})`;
+
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="no-results">No games found 😢</div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(g => `
+      <div class="game-card" onclick="openGame(${g.id})">
+        <div class="game-thumb-placeholder">${g.emoji}</div>
+        <div class="game-info">
+          <div class="game-title">${g.title}</div>
+          <div class="game-tag">${g.desc}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function openGame(id) {
+    const game = games.find(g => g.id === id);
+    if (!game) return;
+    document.getElementById("player-title").textContent = game.title;
+    document.getElementById("game-frame").src = game.embed;
+    document.getElementById("player-overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeGame() {
+    document.getElementById("player-overlay").classList.remove("open");
+    document.getElementById("game-frame").src = "";
+    document.body.style.overflow = "";
+  }
+
+  // Category buttons
+  document.querySelectorAll(".category-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCat = btn.dataset.cat;
+      renderGames();
+    });
+  });
+
+  // Search
+  document.getElementById("search-input").addEventListener("input", e => {
+    searchQuery = e.target.value;
+    renderGames();
+  });
+
+  // Close button
+  document.getElementById("close-btn").addEventListener("click", closeGame);
+
+  // Close on overlay click
+  document.getElementById("player-overlay").addEventListener("click", e => {
+    if (e.target === document.getElementById("player-overlay")) closeGame();
+  });
+
+  // ESC key
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeGame();
+  });
+
+  renderGames();
+</script>
+</body>
+</html>
